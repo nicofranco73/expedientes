@@ -55,15 +55,52 @@ try {
         }
     }
 
+    // Validar y sanitizar campos numéricos
+    $numero = trim($_POST['numero'] ?? '');
+    $letra = strtoupper(trim($_POST['letra'] ?? ''));
+    $folio = trim($_POST['folio'] ?? '');
+    $anio = filter_var($_POST['anio'] ?? '', FILTER_VALIDATE_INT);
+    
+    // Validaciones
+    if (empty($numero) || !preg_match('/^\d+$/', $numero)) {
+        throw new Exception('Número de expediente inválido');
+    }
+    if (empty($letra) || !preg_match('/^[A-Z]$/', $letra)) {
+        throw new Exception('Letra inválida. Debe ser una letra de A-Z');
+    }
+    if (empty($folio) || !preg_match('/^\d+$/', $folio)) {
+        throw new Exception('Folio inválido');
+    }
+    if (!$anio || $anio < 1973 || $anio > 2030) {
+        throw new Exception('Año inválido. Debe estar entre 1973 y 2030');
+    }
+    
+    // Verificar que no exista otro expediente con los mismos datos (excepto el actual)
+    $stmt = $db->prepare("SELECT id FROM expedientes 
+                          WHERE numero = ? AND letra = ? AND anio = ? 
+                          AND id != ?");
+    $stmt->execute([$numero, $letra, $anio, $_POST['id']]);
+    if ($stmt->fetch()) {
+        throw new Exception("Ya existe un expediente con el número $numero, letra $letra del año $anio");
+    }
+
     // Actualizar expediente
     $sql = "UPDATE expedientes 
-            SET lugar = :lugar,
+            SET numero = :numero,
+                letra = :letra,
+                folio = :folio,
+                anio = :anio,
+                lugar = :lugar,
                 extracto = :extracto,
                 iniciador = :iniciador
             WHERE id = :id";
 
     $stmt = $db->prepare($sql);
     $stmt->execute([
+        ':numero' => $numero,
+        ':letra' => $letra,
+        ':folio' => $folio,
+        ':anio' => $anio,
         ':lugar' => $_POST['lugar'],
         ':extracto' => $_POST['extracto'],
         ':iniciador' => $nombre_iniciador,

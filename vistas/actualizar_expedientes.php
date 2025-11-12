@@ -253,57 +253,79 @@ input[readonly] {
                         <div class="row g-3">
                             <!-- Número -->
                             <div class="col-md-3">
-                                <label for="numero" class="form-label">Número</label>
+                                <label for="numero" class="form-label">Número *</label>
                                 <input type="text" 
                                        id="numero" 
                                        name="numero" 
                                        class="form-control" 
                                        value="<?= htmlspecialchars($expediente['numero'] ?? '') ?>" 
-                                       readonly>
+                                       required
+                                       pattern="[0-9]{1,6}"
+                                       maxlength="6"
+                                       title="Solo números, máximo 6 dígitos">
+                                <div class="invalid-feedback">Ingrese un número válido (1-6 dígitos)</div>
                             </div>
 
                             <!-- Letra -->
                             <div class="col-md-3">
-                                <label for="letra" class="form-label">Letra</label>
-                                <input type="text" 
-                                       id="letra" 
-                                       name="letra" 
-                                       class="form-control" 
-                                       value="<?= htmlspecialchars($expediente['letra'] ?? '') ?>" 
-                                       readonly>
+                                <label for="letra" class="form-label">Letra *</label>
+                                <select id="letra" 
+                                        name="letra" 
+                                        class="form-select" 
+                                        required>
+                                    <option value="">Seleccionar...</option>
+                                    <?php foreach (str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZ') as $l): ?>
+                                        <option value="<?= $l ?>" <?= (($expediente['letra'] ?? '') === $l) ? 'selected' : '' ?>>
+                                            <?= $l ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="invalid-feedback">Seleccione una letra</div>
                             </div>
 
                             <!-- Folio -->
                             <div class="col-md-3">
-                                <label for="folio" class="form-label">Folio</label>
+                                <label for="folio" class="form-label">Folio *</label>
                                 <input type="text" 
                                        id="folio" 
                                        name="folio" 
                                        class="form-control" 
                                        value="<?= htmlspecialchars($expediente['folio'] ?? '') ?>" 
-                                       readonly>
+                                       required
+                                       pattern="[0-9]{1,6}"
+                                       maxlength="6"
+                                       title="Solo números, máximo 6 dígitos">
+                                <div class="invalid-feedback">Ingrese un folio válido (1-6 dígitos)</div>
                             </div>
 
                             <!-- Año -->
                             <div class="col-md-3">
-                                <label for="anio" class="form-label">Año</label>
-                                <input type="text" 
-                                       id="anio" 
-                                       name="anio" 
-                                       class="form-control" 
-                                       value="<?= htmlspecialchars($expediente['anio'] ?? '') ?>" 
-                                       readonly>
+                                <label for="anio" class="form-label">Año *</label>
+                                <select id="anio" 
+                                        name="anio" 
+                                        class="form-select" 
+                                        required>
+                                    <option value="">Seleccionar...</option>
+                                    <?php for ($y = 2030; $y >= 1973; $y--): ?>
+                                        <option value="<?= $y ?>" <?= (($expediente['anio'] ?? '') == $y) ? 'selected' : '' ?>>
+                                            <?= $y ?>
+                                        </option>
+                                    <?php endfor; ?>
+                                </select>
+                                <div class="invalid-feedback">Seleccione un año</div>
                             </div>
 
                             <!-- Lugar -->
                             <div class="col-md-6">
-                                <label for="lugar" class="form-label">Lugar actual</label>
+                                <label for="lugar" class="form-label">Lugar actual *</label>
                                 <input type="text" 
                                        id="lugar" 
                                        name="lugar" 
                                        class="form-control" 
                                        value="<?= htmlspecialchars($expediente['lugar'] ?? '') ?>" 
-                                       readonly>
+                                       required
+                                       maxlength="50">
+                                <div class="invalid-feedback">Ingrese el lugar actual del expediente</div>
                             </div>
 
                             <!-- Extracto -->
@@ -420,20 +442,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Validación del formulario (sin límite de extracto)
+    // Validación del formulario
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+
+        // Validar campos requeridos
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            Swal.fire({
+                title: 'Campos incompletos',
+                text: 'Por favor complete todos los campos requeridos',
+                icon: 'warning',
+                confirmButtonColor: '#0d6efd'
+            });
+            return;
+        }
+
+        // Obtener valores para mostrar en confirmación
+        const numero = document.getElementById('numero').value;
+        const letra = document.getElementById('letra').value;
+        const folio = document.getElementById('folio').value;
+        const anio = document.getElementById('anio').value;
 
         // Confirmar envío
         Swal.fire({
             title: '¿Desea guardar los cambios?',
-            text: 'Verifique que los datos sean correctos',
+            html: `
+                <div class="text-start">
+                    <p><strong>Expediente:</strong> ${numero}/${letra}/${folio}/${anio}</p>
+                    <p class="text-muted">Verifique que los datos sean correctos antes de guardar</p>
+                </div>
+            `,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#0d6efd',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, guardar',
-            cancelButtonText: 'Cancelar'
+            confirmButtonText: '<i class="bi bi-save"></i> Sí, guardar',
+            cancelButtonText: '<i class="bi bi-x-circle"></i> Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
                 form.submit();
