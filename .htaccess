@@ -1,0 +1,42 @@
+# ----------------------------------------------------------------------
+# Configuración general y de reescritura
+# ----------------------------------------------------------------------
+
+# Activar la reescritura de URL
+Options +FollowSymLinks
+RewriteEngine On
+
+# ----------------------------------------------------------------------
+# 1. REGLAS DE SEGURIDAD (CRUCIALES)
+# ----------------------------------------------------------------------
+
+# Bloquear el acceso directo a archivos de configuración/conexión
+# Esto protege connection.php (y cualquier archivo que termine en .php con ese nombre)
+<Files ~ "^(connection|config)\.php$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Bloquear el acceso directo a carpetas sensibles
+# Esto protege la base de datos y los archivos de lógica de vista
+RewriteRule ^db/.* - [F,L]
+RewriteRule ^vistas/.* - [F,L]
+RewriteRule ^publico/.* - [F,L] # Opcional: si quiere forzar a que el acceso a CSS/JS sea manejado de otra forma, pero generalmente se permite. Si no, borre esta línea.
+
+# Bloquear el acceso a scripts de procesamiento (para que solo se ejecuten desde el código)
+# Esto cubre archivos como procesar_carga_expedientes.php
+RewriteRule ^procesar_.*\.php - [F,L] 
+
+# ----------------------------------------------------------------------
+# 2. URL AMIGABLES (Quitar .php de los archivos de vistas)
+# ----------------------------------------------------------------------
+
+# 1. No aplique la regla si la petición es un archivo o directorio real
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# 2. Intente añadir .php al final del nombre solicitado
+RewriteCond %{REQUEST_FILENAME}\.php -f
+
+# 3. Si existe con la extensión, redirija internamente (haga la magia)
+RewriteRule ^(.*)$ $1.php [L]

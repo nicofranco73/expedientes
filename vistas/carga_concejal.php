@@ -1,4 +1,8 @@
 <?php
+// ======================================================================
+// Archivo: carga_concejal.php (Vista COMPLETA y MODIFICADA)
+// Objetivo: Formulario para crear un Concejal con Historial de Bloques.
+// ======================================================================
 session_start();
 require 'header.php';
 require 'head.php';
@@ -6,11 +10,26 @@ require 'head.php';
 
 <!DOCTYPE html>
 <html lang="es">
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>Nuevo Concejal</title>
+</head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <?php require 'sidebar.php'; ?>
+            <?php 
+            // Esto asume que tiene un archivo 'sidebar.php'
+            require 'sidebar.php'; 
+            
+            // Lógica para recuperar datos en caso de error
+            $form_data = $_SESSION['form_data'] ?? [];
+            $bloques_anteriores_data = $form_data['bloques_anteriores'] ?? [];
+            // Limpiamos los datos de sesión para evitar que se muestren de nuevo al recargar
+            unset($_SESSION['form_data']);
+            ?>
             
             <main class="col-12 col-md-10 ms-sm-auto px-4">
                 
@@ -26,16 +45,8 @@ require 'head.php';
                     </div>
                 </div>
 
-                <?php
-                // Recuperar datos del formulario si hubo error
-                $form_data = $_SESSION['form_data'] ?? [];
-                unset($_SESSION['form_data']);
-                ?>
-
-                <!-- Formulario de creación -->
                 <form action="procesar_carga_concejal_historial.php" method="POST" class="needs-validation" novalidate>
                     <div class="row">
-                        <!-- Datos personales -->
                         <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header">
@@ -50,14 +61,16 @@ require 'head.php';
                                             <div class="mb-3">
                                                 <label for="apellido" class="form-label">Apellido *</label>
                                                 <input type="text" class="form-control" id="apellido" name="apellido" 
-                                                       value="<?= htmlspecialchars($form_data['apellido'] ?? '') ?>" required>
+                                                    value="<?= htmlspecialchars($form_data['apellido'] ?? '') ?>" required>
+                                                <div class="invalid-feedback">El apellido es obligatorio.</div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="nombre" class="form-label">Nombre *</label>
                                                 <input type="text" class="form-control" id="nombre" name="nombre" 
-                                                       value="<?= htmlspecialchars($form_data['nombre'] ?? '') ?>" required>
+                                                    value="<?= htmlspecialchars($form_data['nombre'] ?? '') ?>" required>
+                                                <div class="invalid-feedback">El nombre es obligatorio.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -67,18 +80,18 @@ require 'head.php';
                                         <input type="text" class="form-control" id="dni" name="dni" 
                                                placeholder="Ingrese DNI"
                                                value="<?= htmlspecialchars($form_data['dni'] ?? '') ?>" required>
+                                        <div class="invalid-feedback">El DNI es obligatorio.</div>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="direccion" class="form-label">Dirección</label>
                                         <input type="text" class="form-control" id="direccion" name="direccion" 
-                                               value="<?= htmlspecialchars($form_data['direccion'] ?? '') ?>">
+                                            value="<?= htmlspecialchars($form_data['direccion'] ?? '') ?>">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Contacto -->
                         <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header">
@@ -91,7 +104,8 @@ require 'head.php';
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="email" name="email" 
-                                               value="<?= htmlspecialchars($form_data['email'] ?? '') ?>">
+                                            value="<?= htmlspecialchars($form_data['email'] ?? '') ?>">
+                                        <div class="invalid-feedback">Por favor, ingrese un email válido.</div>
                                     </div>
                                     
                                     <div class="row">
@@ -99,14 +113,14 @@ require 'head.php';
                                             <div class="mb-3">
                                                 <label for="tel" class="form-label">Teléfono Fijo</label>
                                                 <input type="tel" class="form-control" id="tel" name="tel" 
-                                                       value="<?= htmlspecialchars($form_data['tel'] ?? '') ?>">
+                                                    value="<?= htmlspecialchars($form_data['tel'] ?? '') ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="cel" class="form-label">Teléfono Celular</label>
                                                 <input type="tel" class="form-control" id="cel" name="cel" 
-                                                       value="<?= htmlspecialchars($form_data['cel'] ?? '') ?>">
+                                                    value="<?= htmlspecialchars($form_data['cel'] ?? '') ?>">
                                             </div>
                                         </div>
                                     </div>
@@ -115,20 +129,14 @@ require 'head.php';
                         </div>
                     </div>
 
-                    <!-- Información política -->
                     <div class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
                                 <i class="bi bi-building text-warning me-2"></i>
                                 Información Política
                             </h5>
-                            <span class="badge bg-info text-white">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Historial de Bloques
-                            </span>
                         </div>
                         <div class="card-body">
-                            <!-- Bloque actual -->
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -139,7 +147,8 @@ require 'head.php';
                                         <input type="text" class="form-control form-control-lg" id="bloque_actual" name="bloque_actual" 
                                                placeholder="Ingrese el bloque actual del concejal"
                                                value="<?= htmlspecialchars($form_data['bloque_actual'] ?? '') ?>" required>
-                                        <div class="form-text">Este será el bloque principal y actual</div>
+                                        <div class="invalid-feedback">El bloque actual es obligatorio.</div>
+                                        <div class="form-text">Este será el bloque principal y actual.</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -150,11 +159,11 @@ require 'head.php';
                                         </label>
                                         <input type="date" class="form-control" id="fecha_inicio_bloque" name="fecha_inicio_bloque" 
                                                value="<?= htmlspecialchars($form_data['fecha_inicio_bloque'] ?? date('Y-m-d')) ?>">
-                                        <div class="form-text">Fecha en que se incorporó al bloque</div>
+                                        <div class="form-text">Fecha en que se incorporó al bloque.</div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Observaciones generales -->
+
                             <div class="row">
                                 <div class="col-12">
                                     <div class="mb-3">
@@ -163,28 +172,32 @@ require 'head.php';
                                             Observaciones Generales
                                         </label>
                                         <textarea class="form-control" id="observacion" name="observacion" rows="3"
-                                                  placeholder="Observaciones adicionales sobre el concejal"><?= htmlspecialchars($form_data['observacion'] ?? '') ?></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Información adicional -->
-                            <div class="alert alert-info">
-                                <div class="d-flex align-items-start">
-                                    <i class="bi bi-lightbulb text-info me-3 mt-1"></i>
-                                    <div>
-                                        <h6 class="mb-2">💡 ¿Cómo funciona el historial de bloques?</h6>
-                                        <ul class="mb-0 small">
-                                            <li><strong>Bloque Actual:</strong> Es el bloque donde está actualmente el concejal</li>
-                                            
-                                        </ul>
+                                                     placeholder="Observaciones adicionales sobre el concejal"><?= htmlspecialchars($form_data['observacion'] ?? '') ?></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Botones -->
+                    <div class="card mb-4 border-info">
+                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Historial de Bloques Anteriores
+                            </h5>
+                            <button type="button" class="btn btn-light btn-sm" id="agregar_bloque_anterior">
+                                <i class="bi bi-plus-circle"></i> Agregar Bloque
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="bloques_anteriores" class="row g-3">
+                                </div>
+                            
+                            <p class="text-muted text-center mt-3 mb-0" id="mensaje_sin_bloques">
+                                No hay bloques anteriores cargados. Use el botón "Agregar Bloque" para añadir historial.
+                            </p>
+                        </div>
+                    </div>
                     <div class="d-flex justify-content-between mb-4">
                         <div>
                             <button type="reset" class="btn btn-outline-secondary px-4 me-2">
@@ -207,12 +220,48 @@ require 'head.php';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Gestión de bloques anteriores
+        // Inicialización para la gestión de bloques anteriores
         let contadorBloques = 0;
+        let bloquesContainer = document.getElementById('bloques_anteriores');
+        let mensajeSinBloques = document.getElementById('mensaje_sin_bloques');
 
+        function actualizarMensajeVacio() {
+            if (bloquesContainer.children.length === 0) {
+                mensajeSinBloques.style.display = 'block';
+            } else {
+                mensajeSinBloques.style.display = 'none';
+            }
+        }
+        
+        // Función para eliminar un bloque
+        window.eliminarBloque = function(id) {
+            Swal.fire({
+                title: '¿Eliminar bloque?',
+                text: 'Esta acción eliminará este bloque de historial',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`bloque_${id}`).remove();
+                    actualizarMensajeVacio();
+                    Swal.fire({
+                        title: 'Eliminado',
+                        text: 'El bloque ha sido eliminado',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+        
+        // Lógica para agregar un bloque
         document.getElementById('agregar_bloque_anterior').addEventListener('click', function() {
             contadorBloques++;
-            const container = document.getElementById('bloques_anteriores');
             
             const bloqueHTML = `
                 <div class="card border-secondary mb-3" id="bloque_${contadorBloques}">
@@ -227,50 +276,43 @@ require 'head.php';
                     </div>
                     <div class="card-body py-3">
                         <div class="row">
-                            <div class="col-md-4">
-                                <label for="bloque_anterior_${contadorBloques}" class="form-label">Nombre del Bloque</label>
+                            <div class="col-md-4 mb-3">
+                                <label for="nombre_bloque_${contadorBloques}" class="form-label small fw-bold">Nombre del Bloque</label>
                                 <input type="text" class="form-control" 
-                                       id="bloque_anterior_${contadorBloques}" 
-                                       name="bloques_anteriores[${contadorBloques}][nombre]" 
-                                       placeholder="Ej: Frente para la Victoria">
+                                        id="nombre_bloque_${contadorBloques}" 
+                                        name="bloques_anteriores[${contadorBloques}][nombre]" 
+                                        placeholder="Ej: Frente para la Victoria">
                             </div>
-                            <div class="col-md-3">
-                                <label for="fecha_inicio_${contadorBloques}" class="form-label">Fecha de Inicio</label>
+                            <div class="col-md-3 mb-3">
+                                <label for="fecha_inicio_${contadorBloques}" class="form-label small fw-bold">Fecha de Inicio</label>
                                 <input type="date" class="form-control" 
-                                       id="fecha_inicio_${contadorBloques}" 
-                                       name="bloques_anteriores[${contadorBloques}][fecha_inicio]">
+                                        id="fecha_inicio_${contadorBloques}" 
+                                        name="bloques_anteriores[${contadorBloques}][fecha_inicio]">
                             </div>
-                            <div class="col-md-3">
-                                <label for="fecha_fin_${contadorBloques}" class="form-label">Fecha de Fin</label>
+                            <div class="col-md-3 mb-3">
+                                <label for="fecha_fin_${contadorBloques}" class="form-label small fw-bold">Fecha de Fin</label>
                                 <input type="date" class="form-control" 
-                                       id="fecha_fin_${contadorBloques}" 
-                                       name="bloques_anteriores[${contadorBloques}][fecha_fin]">
+                                        id="fecha_fin_${contadorBloques}" 
+                                        name="bloques_anteriores[${contadorBloques}][fecha_fin]">
                             </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" 
-                                           id="activo_${contadorBloques}" 
-                                           name="bloques_anteriores[${contadorBloques}][activo]" value="1">
-                                    <label class="form-check-label small" for="activo_${contadorBloques}">
-                                        Aún activo
-                                    </label>
+                            <div class="col-md-2 d-flex align-items-center">
                                 </div>
-                            </div>
                         </div>
-                        <div class="row mt-2">
+                        <div class="row">
                             <div class="col-12">
-                                <label for="observacion_${contadorBloques}" class="form-label">Observaciones</label>
+                                <label for="observacion_${contadorBloques}" class="form-label small fw-bold">Observaciones</label>
                                 <input type="text" class="form-control form-control-sm" 
-                                       id="observacion_${contadorBloques}" 
-                                       name="bloques_anteriores[${contadorBloques}][observacion]" 
-                                       placeholder="Observaciones sobre este bloque">
+                                        id="observacion_${contadorBloques}" 
+                                        name="bloques_anteriores[${contadorBloques}][observacion]" 
+                                        placeholder="Observaciones sobre este bloque">
                             </div>
                         </div>
                     </div>
                 </div>
             `;
             
-            container.insertAdjacentHTML('beforeend', bloqueHTML);
+            bloquesContainer.insertAdjacentHTML('beforeend', bloqueHTML);
+            actualizarMensajeVacio();
             
             // Hacer scroll suave al nuevo bloque
             setTimeout(() => {
@@ -281,34 +323,41 @@ require 'head.php';
             }, 100);
         });
 
-        function eliminarBloque(id) {
-            Swal.fire({
-                title: '¿Eliminar bloque?',
-                text: 'Esta acción no se puede deshacer',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById(`bloque_${id}`).remove();
-                    Swal.fire({
-                        title: 'Eliminado',
-                        text: 'El bloque ha sido eliminado',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
+        // RELLENO DE BLOQUES ANTERIORES EN CASO DE ERROR DE VALIDACIÓN
+        const dataRecuperada = <?= json_encode($bloques_anteriores_data) ?>;
+        if (Object.keys(dataRecuperada).length > 0) {
+            document.addEventListener('DOMContentLoaded', () => {
+                for (const key in dataRecuperada) {
+                    if (dataRecuperada.hasOwnProperty(key)) {
+                        const bloque = dataRecuperada[key];
+                        // Simular clic para generar el HTML del bloque con el contador actual
+                        document.getElementById('agregar_bloque_anterior').click();
+                        const idActual = contadorBloques;
+                        
+                        // Rellenar los campos con los datos recuperados
+                        document.querySelector(`input[name="bloques_anteriores[${idActual}][nombre]"]`).value = bloque.nombre || '';
+                        document.querySelector(`input[name="bloques_anteriores[${idActual}][fecha_inicio]"]`).value = bloque.fecha_inicio || '';
+                        document.querySelector(`input[name="bloques_anteriores[${idActual}][fecha_fin]"]`).value = bloque.fecha_fin || '';
+                        document.querySelector(`input[name="bloques_anteriores[${idActual}][observacion]"]`).value = bloque.observacion || '';
+                    }
                 }
+                actualizarMensajeVacio();
+                // Una vez rellenados, aseguramos que el scroll vaya al principio de la sección
+                document.getElementById('bloques_anteriores').scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
+        } else {
+            // Si no hay datos recuperados, solo mostramos el mensaje de vacío inicial
+            document.addEventListener('DOMContentLoaded', actualizarMensajeVacio);
         }
 
-        // Validación de fechas
+
+        // Validación de fechas (Fecha Fin > Fecha Inicio)
         document.addEventListener('change', function(e) {
             if (e.target.type === 'date' && e.target.name && e.target.name.includes('fecha_fin')) {
-                const bloqueId = e.target.name.match(/\[(\d+)\]/)[1];
+                const bloqueIdMatch = e.target.name.match(/\[(\d+)\]/);
+                if (!bloqueIdMatch) return;
+                
+                const bloqueId = bloqueIdMatch[1];
                 const fechaInicio = document.querySelector(`input[name="bloques_anteriores[${bloqueId}][fecha_inicio]"]`);
                 
                 if (fechaInicio && fechaInicio.value && e.target.value) {
@@ -319,14 +368,13 @@ require 'head.php';
                             icon: 'warning',
                             confirmButtonColor: '#ffc107'
                         });
-                        e.target.value = '';
+                        e.target.value = ''; // Limpia el campo con error
                     }
                 }
             }
         });
-    </script>
-    <script>
-        // Validación de formulario
+
+        // Validación de formulario (existente en su código)
         (() => {
             'use strict';
             const forms = document.querySelectorAll('.needs-validation');
@@ -349,7 +397,7 @@ require 'head.php';
             });
         })();
 
-        // Validación de email en tiempo real
+        // Validación de email en tiempo real (existente en su código)
         document.getElementById('email').addEventListener('blur', function() {
             const email = this.value.trim();
             if (email && !isValidEmail(email)) {
@@ -366,7 +414,7 @@ require 'head.php';
             return emailRegex.test(email);
         }
 
-        // Verificar si hay mensaje en la sesión para mostrar con SweetAlert
+        // SweetAlert para mensajes de sesión (existente en su código)
         <?php if (isset($_SESSION['mensaje'])): ?>
             <?php 
             $mensaje = $_SESSION['mensaje'];

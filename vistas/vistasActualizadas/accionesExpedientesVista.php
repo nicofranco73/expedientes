@@ -1,8 +1,3 @@
-<?php
-session_start();
-require 'header.php';
-require 'head.php';
-?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -19,6 +14,7 @@ require 'head.php';
                             <h2 class="mb-4">Seleccione la acción</h2>
                             
                             <div class="row g-4 justify-content-center">
+                                
                                 <div class="col-12 col-md-5">
                                     <a href="carga_expedientes.php" class="text-decoration-none">
                                         <div class="card role-card h-100 shadow-sm hover-card">
@@ -50,6 +46,7 @@ require 'head.php';
                                         </div>
                                     </a>
                                 </div>
+
                             </div>
                         </div>
                     </div>

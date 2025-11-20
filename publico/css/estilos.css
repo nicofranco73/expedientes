@@ -30,6 +30,50 @@ body {
 }
 
 /* ===========================
+   MEJORAS GENERALES / ACCESIBILIDAD
+   =========================== */
+/* Establece el modelo de caja de borde para todos los elementos */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Estilos de enfoque (focus) para accesibilidad, si no están definidos por el componente */
+:focus-visible {
+    outline: 3px solid #3F72AF; /* Usa el color primario medio */
+    outline-offset: 3px;
+    border-radius: 4px; /* Pequeño redondeo */
+}
+/* Sobrescribir el estilo de enfoque para los form-control que ya tienen su propio focus */
+.form-control:focus-visible, .form-select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 1.5px #3F72AF; /* Reusa el box-shadow existente */
+}
+
+/* Estilos para enlaces generales (fuera de botones y menús) */
+a {
+    color: #3F72AF;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+a:hover {
+    color: #112D4E;
+    text-decoration: underline;
+}
+
+/* Clases de utilidad de color de texto */
+.text-primary-dark {
+    color: #112D4E !important;
+}
+.text-primary-light {
+    color: #3F72AF !important;
+}
+.text-background-light {
+    color: #DBE2EF !important;
+}
+
+
+/* ===========================
    HEADER / NAVBAR & HEADER DASHBOARD
    =========================== */
 nav.header-dashboard {
@@ -260,7 +304,7 @@ nav.header-dashboard .container {
    =========================== */
 @keyframes fadein {
     from { opacity: 0; transform: translateY(32px);}
-    to   { opacity: 1; transform: translateY(0);}
+    to 	{ opacity: 1; transform: translateY(0);}
 }
 
 /* ===========================
