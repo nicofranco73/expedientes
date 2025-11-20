@@ -79,29 +79,49 @@ $expediente = $expediente ?? [];
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label for="numero" class="form-label">Número</label>
-                                <input type="text" id="numero" name="numero" class="form-control" 
-                                        value="<?= htmlspecialchars($expediente['numero'] ?? '') ?>" readonly>
+                                <input type="text" 
+                                       id="numero" 
+                                       name="numero" 
+                                       class="form-control" 
+                                       value="<?= htmlspecialchars($expediente['numero'] ?? '') ?>" 
+                                       readonly>
                             </div>
                             <div class="col-md-3">
                                 <label for="letra" class="form-label">Letra</label>
-                                <input type="text" id="letra" name="letra" class="form-control" 
-                                        value="<?= htmlspecialchars($expediente['letra'] ?? '') ?>" readonly>
+                                <input type="text" 
+                                       id="letra" 
+                                       name="letra" 
+                                       class="form-control" 
+                                       value="<?= htmlspecialchars($expediente['letra'] ?? '') ?>" 
+                                       readonly>
                             </div>
                             <div class="col-md-3">
                                 <label for="folio" class="form-label">Folio</label>
-                                <input type="text" id="folio" name="folio" class="form-control" 
-                                        value="<?= htmlspecialchars($expediente['folio'] ?? '') ?>" readonly>
+                                <input type="text" 
+                                       id="folio" 
+                                       name="folio" 
+                                       class="form-control" 
+                                       value="<?= htmlspecialchars($expediente['folio'] ?? '') ?>" 
+                                       readonly>
                             </div>
                             <div class="col-md-3">
                                 <label for="anio" class="form-label">Año</label>
-                                <input type="text" id="anio" name="anio" class="form-control" 
-                                        value="<?= htmlspecialchars($expediente['anio'] ?? '') ?>" readonly>
+                                <input type="text" 
+                                       id="anio" 
+                                       name="anio" 
+                                       class="form-control" 
+                                       value="<?= htmlspecialchars($expediente['anio'] ?? '') ?>" 
+                                       readonly>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="lugar" class="form-label">Lugar actual</label>
-                                <input type="text" id="lugar" name="lugar" class="form-control" 
-                                        value="<?= htmlspecialchars($expediente['lugar'] ?? '') ?>" readonly>
+                                <input type="text" 
+                                       id="lugar" 
+                                       name="lugar" 
+                                       class="form-control" 
+                                       value="<?= htmlspecialchars($expediente['lugar'] ?? '') ?>" 
+                                       readonly>
                             </div>
 
                             <div class="col-12">
@@ -207,23 +227,27 @@ $expediente = $expediente ?? [];
             });
         }
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: '¿Desea guardar los cambios?',
-                text: 'Verifique que los datos sean correctos',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#0d6efd',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, guardar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
+    // Validación del formulario (sin límite de extracto)
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Confirmar envío
+        Swal.fire({
+            title: '¿Desea guardar los cambios?',
+            text: 'Verifique que los datos sean correctos',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0d6efd',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
         });
+    });
+});
 
         const params = new URLSearchParams(window.location.search);
         if (!params.has('id')) {

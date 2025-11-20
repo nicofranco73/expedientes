@@ -65,26 +65,18 @@ try {
                 lugar
             FROM expedientes 
             WHERE numero LIKE :termino
-                OR letra LIKE :termino
-                OR folio LIKE :termino
-                OR libro LIKE :termino
-                OR anio LIKE :termino
-                OR extracto LIKE :termino_texto
-                OR iniciador LIKE :termino_texto
-                OR lugar LIKE :termino_texto
+               OR letra LIKE :termino
+               OR folio LIKE :termino
+               OR libro LIKE :termino
+               OR anio LIKE :termino
+               OR extracto LIKE :termino_texto
+               OR iniciador LIKE :termino_texto
+               OR lugar LIKE :termino_texto
             ORDER BY fecha_hora_ingreso DESC 
             LIMIT 8";
 
     $stmt = $db->prepare($sql);
-    
-    // Parámetros de búsqueda
-    $termino_like = '%' . $termino . '%';
-    $termino_texto = '%' . $termino . '%';
-    
-    $stmt->execute([
-        ':termino' => $termino_like,
-        ':termino_texto' => $termino_texto
-    ]);
+    $stmt->execute($params);
 
     $expedientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

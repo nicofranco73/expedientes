@@ -62,10 +62,11 @@ try {
         
     } else {
         // Búsqueda avanzada (POST)
-        $numero = !empty($_POST['numero']) ? filter_var($_POST['numero'], FILTER_VALIDATE_INT) : null;
+        // CORREGIDO: No usar FILTER_VALIDATE_INT para preservar ceros iniciales
+        $numero = !empty($_POST['numero']) ? trim($_POST['numero']) : null;
         $letra = !empty($_POST['letra']) ? strtoupper(substr($_POST['letra'], 0, 1)) : null;
-        $folio = !empty($_POST['folio']) ? filter_var($_POST['folio'], FILTER_VALIDATE_INT) : null;
-        $libro = !empty($_POST['libro']) ? filter_var($_POST['libro'], FILTER_VALIDATE_INT) : null;
+        $folio = !empty($_POST['folio']) ? trim($_POST['folio']) : null;
+        $libro = !empty($_POST['libro']) ? trim($_POST['libro']) : null;
         $anio = !empty($_POST['anio']) ? filter_var($_POST['anio'], FILTER_VALIDATE_INT) : null;
 
         // Validar que al menos un campo tenga valor
@@ -73,7 +74,19 @@ try {
             throw new Exception("Debe ingresar al menos un criterio de búsqueda");
         }
 
-        // Validar rangos solo si los campos tienen valores
+        // Validar y sanitizar campos
+        if ($numero && !preg_match('/^\d+$/', $numero)) {
+            throw new Exception("Número de expediente inválido");
+        }
+        
+        if ($folio && !preg_match('/^\d+$/', $folio)) {
+            throw new Exception("Folio inválido");
+        }
+        
+        if ($libro && !preg_match('/^\d+$/', $libro)) {
+            throw new Exception("Libro inválido");
+        }
+        
         if ($anio && ($anio < 1973 || $anio > 2030)) {
             throw new Exception("Año fuera de rango permitido (1973-2030)");
         }
