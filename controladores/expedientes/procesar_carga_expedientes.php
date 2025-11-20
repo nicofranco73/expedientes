@@ -20,6 +20,10 @@ try {
         throw new Exception("Método no permitido");
     }
 
+    // Debug: Registrar todos los datos POST recibidos
+    error_log("=== INICIO PROCESAMIENTO EXPEDIENTE ===");
+    error_log("POST recibido: " . print_r($_POST, true));
+
     // Validar campos requeridos
     $campos_requeridos = [
         'numero', 'letra', 'folio', 'libro', 'anio', 
@@ -28,15 +32,11 @@ try {
 
     foreach ($campos_requeridos as $campo) {
         if (empty($_POST[$campo])) {
-            throw new Exception("Todos los campos son obligatorios");
+            error_log("Campo faltante: " . $campo);
+            throw new Exception("Todos los campos son obligatorios (falta: $campo)");
         }
     }
-
-    // Validar longitud del extracto
-    if (strlen($_POST['extracto']) > 300) {
-        throw new Exception("El extracto no puede superar los 300 caracteres");
-    }
-
+ 
     // Conectar a la base de datos
     require_once '../db/connection.php'; // Incluir la conexión PDO
     $db = $pdo;
@@ -46,10 +46,13 @@ try {
 
     // Obtener nombre completo del iniciador desde la base Iniciadores
     $iniciador_id = sanear_input($_POST['iniciador'] ?? '');
+    error_log("Iniciador ID recibido del formulario: '$iniciador_id'");
+    
     $nombre_iniciador = '';
     if (preg_match('/^(PF|PJ|CO)-(\d+)$/', $iniciador_id, $matches)) {
         $tipo = $matches[1];
         $id = (int)$matches[2];
+<<<<<<< HEAD:controladores/expedientes/procesar_carga_expedientes.php
         
         // Usamos la misma conexión $db ya que apunta a la misma base de datos
         
@@ -64,8 +67,76 @@ try {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row && !empty($row['nombre_completo'])) {
             $nombre_iniciador = $row['nombre_completo'];
+=======
+        error_log("Tipo detectado: $tipo, ID: $id");
+        
+        $db_iniciadores = new PDO(
+            "mysql:host=localhost;dbname=c2810161_iniciad;charset=utf8mb4",
+            "c2810161_iniciad",
+            "li62veMAdu",
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+        
+        if ($tipo === 'PF') {
+            $stmt = $db_iniciadores->prepare("SELECT CONCAT(apellido, ', ', nombre, ' (', dni, ')') as nombre_completo FROM persona_fisica WHERE id = ?");
+            $stmt->execute([$id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            error_log("Resultado PF query: " . print_r($row, true));
+            if ($row && !empty($row['nombre_completo'])) {
+                $nombre_iniciador = $row['nombre_completo'];
+                error_log("Nombre PF asignado: $nombre_iniciador");
+            }
+        } elseif ($tipo === 'PJ') {
+            $stmt = $db_iniciadores->prepare("SELECT CONCAT(razon_social, ' (', cuit, ')') as nombre_completo FROM persona_juri_entidad WHERE id = ?");
+            $stmt->execute([$id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            error_log("Resultado PJ query: " . print_r($row, true));
+            if ($row && !empty($row['nombre_completo'])) {
+                $nombre_iniciador = $row['nombre_completo'];
+                error_log("Nombre PJ asignado: $nombre_iniciador");
+            }
+        } elseif ($tipo === 'CO') {
+            // Para concejales, verificar si se seleccionó un bloque específico
+            $bloque_seleccionado = sanear_input($_POST['bloque_concejal_seleccionado'] ?? '');
+            error_log("Bloque concejal seleccionado: '$bloque_seleccionado'");
+            
+            if (!empty($bloque_seleccionado)) {
+                // Usar el bloque específico seleccionado
+                $stmt = $db_iniciadores->prepare("SELECT CONCAT(apellido, ', ', nombre) as nombre_completo FROM concejales WHERE id = ?");
+                $stmt->execute([$id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                error_log("Resultado CO con bloque específico: " . print_r($row, true));
+                if ($row && !empty($row['nombre_completo'])) {
+                    $nombre_iniciador = $row['nombre_completo'] . ' - ' . $bloque_seleccionado;
+                    error_log("Nombre CO con bloque asignado: $nombre_iniciador");
+                }
+            } else {
+                // Usar el bloque actual por defecto
+                $stmt = $db_iniciadores->prepare("SELECT CONCAT(apellido, ', ', nombre, ' - ', bloque) as nombre_completo FROM concejales WHERE id = ?");
+                $stmt->execute([$id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                error_log("Resultado CO con bloque actual: " . print_r($row, true));
+                if ($row && !empty($row['nombre_completo'])) {
+                    $nombre_iniciador = $row['nombre_completo'];
+                    error_log("Nombre CO asignado: $nombre_iniciador");
+                }
+            }
+>>>>>>> 38a24694d49b8b11acc5ca3ec202ce34db8ed6ec:vistas/procesar_carga_expedientes.php
         }
+    } else {
+        error_log("ERROR: El formato del iniciador_id no coincide con el patrón esperado: $iniciador_id");
     }
+    
+    // Debug temporal - Remover después de verificar
+    error_log("Nombre iniciador final antes de validación: '$nombre_iniciador'");
+    
+    // Verificar que se obtuvo un nombre de iniciador
+    if (empty($nombre_iniciador)) {
+        error_log("ERROR CRÍTICO: nombre_iniciador está vacío");
+        throw new Exception("Error al obtener los datos del iniciador. Por favor, intente nuevamente.");
+    }
+    
+    error_log("Iniciador validado correctamente: $nombre_iniciador");
 
     // Preparar datos
     $data = [
@@ -104,11 +175,15 @@ try {
     $stmt = $db->prepare($sql);
     $stmt->execute($data);
     
+    error_log("Expediente insertado exitosamente con iniciador: " . $data['iniciador']);
+    
     // Obtener el ID del expediente insertado
     $expediente_id = $db->lastInsertId();
+    error_log("ID del nuevo expediente: $expediente_id");
 
     // Confirmar transacción
     $db->commit();
+    error_log("=== FIN PROCESAMIENTO EXITOSO ===");
 
     $_SESSION['mensaje'] = "Expediente guardado correctamente";
     $_SESSION['tipo_mensaje'] = "success";

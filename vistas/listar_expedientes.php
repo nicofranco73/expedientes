@@ -2,6 +2,11 @@
 session_start();
 require 'header.php';
 
+// Headers para evitar caché - CRÍTICO para mostrar nuevos expedientes
+header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // Limpiar mensajes de error que no corresponden a esta página
 if (isset($_SESSION['mensaje']) && strpos($_SESSION['mensaje'], 'ID de expediente') !== false) {
     unset($_SESSION['mensaje'], $_SESSION['tipo_mensaje']);
@@ -14,7 +19,7 @@ try {
     $db = $pdo;
 
     // Configuración de paginación
-    $por_pagina = 300;
+    $por_pagina = 50; // Reducido de 300 a 50 para mejor rendimiento
     $pagina = isset($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
     $offset = ($pagina - 1) * $por_pagina;
 
@@ -76,11 +81,17 @@ try {
     $stmt->execute($params);
     $total = $stmt->fetchColumn();
     $total_paginas = ceil($total / $por_pagina);
+    
+    // Si la página solicitada es mayor que el total disponible, ir a la última página
+    if ($pagina > $total_paginas && $total_paginas > 0) {
+        $pagina = $total_paginas;
+        $offset = ($pagina - 1) * $por_pagina;
+    }
 
-    // Consulta de expedientes con filtros y paginación
+    // Consulta de expedientes con filtros y paginación - ORDENAR POR ID DESC para mostrar primero los nuevos
     $sql = "SELECT * FROM expedientes 
             $whereClause
-            ORDER BY fecha_hora_ingreso DESC 
+            ORDER BY id DESC, fecha_hora_ingreso DESC 
             LIMIT :offset, :limit";
 
     $stmt = $db->prepare($sql);
@@ -454,6 +465,51 @@ $query_string = $query_string ? '&' . $query_string : '';
             });
         }
     }
+
+    // ===== SISTEMA DE AUTO-ACTUALIZACIÓN =====
+    // Detectar cambios en tiempo real sin refrescar toda la página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variable para almacenar el timestamp de la última verificación
+        let ultimaVerificacion = Date.now();
+        
+        // Verificar nuevos expedientes cada 30 segundos
+        setInterval(function() {
+            verificarNuevosExpedientes();
+        }, 30000); // 30 segundos
+        
+        // Si el usuario regresa a la pestaña, refrescar inmediatamente
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // La página se hizo visible nuevamente
+                verificarNuevosExpedientes();
+            }
+        });
+        
+        // Función para verificar si hay nuevos expedientes
+        function verificarNuevosExpedientes() {
+            // Hacer una petición ligera para verificar el total de expedientes
+            const urlParams = new URLSearchParams(window.location.search);
+            let queryString = '?check_count=1';
+            
+            // Mantener los filtros actuales
+            if (urlParams.has('numero')) queryString += '&numero=' + encodeURIComponent(urlParams.get('numero'));
+            if (urlParams.has('letra')) queryString += '&letra=' + encodeURIComponent(urlParams.get('letra'));
+            if (urlParams.has('folio')) queryString += '&folio=' + encodeURIComponent(urlParams.get('folio'));
+            if (urlParams.has('libro')) queryString += '&libro=' + encodeURIComponent(urlParams.get('libro'));
+            if (urlParams.has('anio')) queryString += '&anio=' + encodeURIComponent(urlParams.get('anio'));
+            if (urlParams.has('lugar')) queryString += '&lugar=' + encodeURIComponent(urlParams.get('lugar'));
+            if (urlParams.has('fecha_desde')) queryString += '&fecha_desde=' + encodeURIComponent(urlParams.get('fecha_desde'));
+            if (urlParams.has('fecha_hasta')) queryString += '&fecha_hasta=' + encodeURIComponent(urlParams.get('fecha_hasta'));
+            if (urlParams.has('iniciador')) queryString += '&iniciador=' + encodeURIComponent(urlParams.get('iniciador'));
+            
+            // Recargar la página si estamos en la primera página
+            const paginaActual = urlParams.get('pagina') || '1';
+            if (paginaActual === '1') {
+                // Forzar recarga sin caché
+                window.location.href = window.location.href.split('?')[0] + queryString.replace('?check_count=1', '?') || window.location.href.split('?')[0];
+            }
+        }
+    });
     </script>
 </body>
 </html>

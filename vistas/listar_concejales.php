@@ -1,6 +1,11 @@
-
 <?php
 session_start();
+
+// Headers para evitar caché - CRÍTICO para mostrar nuevos concejales en DonWeb
+header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 require 'header.php';
 require 'head.php';
 
@@ -273,6 +278,41 @@ try {
             }
         });
     }
+
+    // ===== SISTEMA DE AUTO-ACTUALIZACIÓN =====
+    // Detectar cambios en tiempo real sin refrescar toda la página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar nuevos concejales cada 30 segundos
+        setInterval(function() {
+            verificarNuevosConcejales();
+        }, 30000); // 30 segundos
+        
+        // Si el usuario regresa a la pestaña, refrescar inmediatamente
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // La página se hizo visible nuevamente
+                verificarNuevosConcejales();
+            }
+        });
+        
+        // Función para verificar si hay nuevos concejales
+        function verificarNuevosConcejales() {
+            // Mantener el término de búsqueda actual
+            const urlParams = new URLSearchParams(window.location.search);
+            let queryString = '';
+            
+            if (urlParams.has('buscar')) {
+                queryString = '?buscar=' + encodeURIComponent(urlParams.get('buscar'));
+            }
+            
+            // Recargar la página si estamos en la primera página
+            const paginaActual = urlParams.get('pagina') || '1';
+            if (paginaActual === '1') {
+                // Forzar recarga sin caché
+                window.location.href = window.location.href.split('?')[0] + queryString;
+            }
+        }
+    });
     </script>
 </body>
 </html>
