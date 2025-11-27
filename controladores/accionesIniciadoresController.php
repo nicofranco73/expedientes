@@ -1,24 +1,32 @@
 <?php
-// ====================================================================
-// CONTROLADOR: accionesIniciadoresController.php (Ola 2 - Corregido)
-// Lógica de inicialización y control de flujo.
-// ====================================================================
+session_start(); // Asegura que la sesión esté iniciada
 
-// 1. Inicia la sesión.
-session_start();
+// Verifica la autenticación
+if (!isset($_SESSION['usuario'])) {
+    // Si no hay sesión, redirigir al login
+    header("Location: ../vistas/login.php");
+    exit;
+}
 
-// 2. Inclusión del Encabezado (contiene <head>, CSS global y <body> de apertura)
-require 'header.php'; 
+// Lógica de permisos (simulación)
+// if (!tienePermiso('ver_iniciadores')) {
+//     $_SESSION['mensaje'] = "Acceso denegado.";
+//     $_SESSION['tipo_mensaje'] = "error";
+//     header("Location: ../vistas/dashboard.php");
+//     exit;
+// }
 
-// 3. Inclusión de la barra lateral
-require 'sidebar.php'; 
+// Si todo está OK, definimos las variables para la vista
+$Nombre_usuario = $_SESSION['usuario'] ?? 'Desconocido';
+$Vista_actual = 'acciones_iniciadores'; // Variable para activar el item del sidebar
 
-// Lógica de datos (en este caso, no hay lógica compleja)
-// ...
+// Inclusión del layout completo
+include_once '../vistas/head.php';
+include_once '../vistas/header.php';
+include_once '../vistas/sidebar.php';
 
-// 4. 📌 LLAMADA A LA VISTA
-require '../vistas/accionesIniciadores_view.php'; // Cambiado el nombre para simplificar: _view
+// Contenido principal de la vista de acciones de iniciadores
+include_once '../vistas/acciones_iniciadores.php';
 
-// 5. Inclusión del Pie de Página (contiene JS global y el cierre de </body></html>)
-require 'footer.php';
+include_once '../vistas/footer.php';
 ?>

@@ -1,7 +1,9 @@
 <?php
 session_start();
+ require '../vistas/sidebar.php'; 
 require 'header.php';
 require 'head.php';
+require 'vistas/publico/css/custom.css';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -10,7 +12,7 @@ require 'head.php';
     
     <div class="container-fluid">
         <div class="row">
-            <?php require '../vistas/sidebar.php'; ?>
+           
 
             <main class="col-12 col-md-10 ms-sm-auto px-4">
                 <div class="container py-5">
@@ -58,5 +60,6 @@ require 'head.php';
         </div>
     </div>
 </body>
+
 
 </html>

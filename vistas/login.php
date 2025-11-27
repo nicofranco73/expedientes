@@ -1,86 +1,88 @@
-<?php
+<?php 
 session_start();
 
-$error = '';
+$mensaje = $_SESSION['mensaje'] ?? '';
+$tipo_mensaje = $_SESSION['tipo_mensaje'] ?? '';
 
-// Si ya está logueado, redirige al dashboard
-// Corregido: La ruta es simplemente 'dashboard.php' porque ambos archivos están en la misma carpeta 'vistas'.
-if (isset($_SESSION['usuario'])) {
-    header('Location: dashboard.php'); // RUTA CORREGIDA AQUÍ
-    exit;
+// Limpiar la sesión inmediatamente después de leer el mensaje
+if (isset($_SESSION['mensaje'])) {
+    unset($_SESSION['mensaje']);
+    unset($_SESSION['tipo_mensaje']);
 }
 
-require_once __DIR__ . '/../db/connection.php';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuario = trim($_POST['usuario'] ?? '');
-    $contrasena = $_POST['contrasena'] ?? '';
-    $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE username = ? AND is_active = 1 LIMIT 1');
-    $stmt->execute([$usuario]);
-    $user = $stmt->fetch();
-    if ($user && password_verify($contrasena, $user['password_hash'])) {
-        $_SESSION['usuario'] = $user['username'];
-        $_SESSION['usuario_id'] = $user['id']; // Corregido para consistencia
-        $_SESSION['rol'] = $user['role']; // Corregido para consistencia
-        $_SESSION['is_superuser'] = ($user['is_superuser'] ?? 0) == 1;
-        
-        // Registrar el login en logs de seguridad
-        try {
-            $log_stmt = $pdo->prepare('INSERT INTO logs_seguridad (user_id, accion, descripcion, ip_address, fecha) VALUES (?, ?, ?, ?, NOW())');
-            $log_stmt->execute([
-                $user['id'],
-                'LOGIN',
-                'Inicio de sesión exitoso - ' . ($user['is_superuser'] ? 'Super Usuario' : ucfirst($user['role'])),
-                $_SERVER['REMOTE_ADDR'] ?? 'unknown'
-            ]);
-        } catch (Exception $e) {
-            // Si falla el log, no es crítico para el login
-        }
-        
-        header('Location: dashboard.php');
-        exit;
-    } else {
-        $error = 'Usuario o contraseña incorrectos';
-    }
+// Si hay sesión activa, redirige al dashboard.
+if (isset($_SESSION['usuario'])) {
+    // Redirección relativa a dashboard.php dentro de la misma carpeta 'vistas/'
+    header("Location: dashboard.php");
+    exit;
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión | Sistema de Expedientes</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Expedientes</title>
+    <!-- Ruta absoluta para Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Iconos de Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../publico/css/estilos.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .main-box {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .login-container {
+            height: 100vh;
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div class="login-container d-flex align-items-center justify-content-center min-vh-100">
         <div class="main-box login w-100" style="max-width: 400px;">
-            <div class="login-logo">
-                <img src="../publico/imagen/LOGOCDE.png" alt="Logo Consejo">
-            </div>
-            <div class="login-title">Sistema de Expedientes</div>
-            <div class="login-subtext mb-4">Ingrese su usuario y contraseña para acceder</div>
-            <?php if ($error): ?>
-                <div class="alert alert-danger py-2 text-center" role="alert">
-                    <?php echo $error; ?>
-                </div>
-            <?php endif; ?>
-            <form action="" method="post" autocomplete="off">
+            <!-- INICIO: Formulario de Login -->
+            <!-- RUTA RELATIVA: Desde /vistas/ subimos (..) a /expedientes/ y entramos a /controladores/ -->
+            <form action="../controladores/loginController.php" method="POST">
+                
+                <h2 class="text-center mb-4">Sistema de Expedientes</h2>
+
+                <?php 
+                // Lógica de mensajes de sesión (si existe)
+                if ($mensaje): 
+                    $clase = ($tipo_mensaje == 'error') ? 'alert-danger' : 'alert-success';
+                ?>
+                    <div class="alert <?php echo $clase; ?> text-center" role="alert">
+                        <?php echo htmlspecialchars($mensaje); ?>
+                    </div>
+                <?php 
+                endif; 
+                ?>
+
+                <!-- Campo Usuario -->
                 <div class="mb-3">
                     <label for="usuario" class="form-label">Usuario</label>
-                    <input type="text" id="usuario" name="usuario" class="form-control" required autofocus>
+                    <input type="text" class="form-control" id="usuario" name="usuario" required autofocus>
                 </div>
+
+                <!-- Campo Contraseña -->
                 <div class="mb-3">
-                    <label for="contrasena" class="form-label">Contraseña</label>
-                    <input type="password" id="contrasena" name="contrasena" class="form-control" required>
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-login mt-3 w-100">
-                    <i class="bi bi-door-open-fill"></i> Ingresar
-                </button>
-                
-                
+
+                <!-- Botón Ingresar -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Ingresar
+                    </button>
+                </div>
             </form>
+            <!-- FIN: Formulario de Login -->
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

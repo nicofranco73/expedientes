@@ -1,73 +1,31 @@
-<?php
-session_start();
-require 'header.php';
-require 'head.php';
-?>
-<!DOCTYPE html>
-<html lang="es">
-
-<body class="bg-light">
-    <div class="container-fluid">
-        <div class="row">
-            <?php require '../vistas/sidebar.php'; ?>
-
-            <main class="col-12 col-md-10 ms-sm-auto px-4">
-                <div class="container py-5">
-                    <div class="row justify-content-center">
-                        <div class="col-12 col-md-8 text-center">
-                            <h2 class="mb-4">Seleccione la acción</h2>
-                            
-                            <div class="row g-4 justify-content-center">
-                                <div class="col-12 col-md-5">
-                                    <a href="carga_iniciador.php" class="text-decoration-none">
-                                        <div class="card role-card h-100 shadow-sm hover-card">
-                                            <div class="card-body p-4">
-                                                <div class="role-icon mb-3">
-                                                    <i class="bi bi-person fs-1"></i>
-                                                </div>
-                                                <h3 class="h4 fw-bold mb-2">Persona Física</h3>
-                                                
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-12 col-md-5">
-                                    <a href="carga_persona_juri_entidad.php" class="text-decoration-none">
-                                        <div class="card role-card h-100 shadow-sm hover-card">
-                                            <div class="card-body p-4">
-                                                <div class="role-icon mb-3">
-                                                    <i class="bi bi-person-vcard fs-1"></i>
-                                                </div>
-                                                <h3 class="h4 fw-bold mb-2">Persona Juridica / Entidad</h3>
-                                                
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="col-12 col-md-5">
-                                    <a href="carga_concejal.php" class="text-decoration-none">
-                                        <div class="card role-card h-100 shadow-sm hover-card">
-                                            <div class="card-body p-4">
-                                                <div class="role-icon mb-3">
-                                                    <i class="bi bi-person-workspace fs-1"></i>
-                                                </div>
-                                                <h3 class="h4 fw-bold mb-2">Concejal</h3>
-                                                
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="col py-3">
+    <div class="container">
+        <h1 class="text-center mb-5">Administración de Iniciadores</h1>
+        
+        <div class="row justify-content-center">
+            
+            <!-- Tarjeta 1: Nuevo Iniciador -->
+            <div class="col-md-5 col-sm-12 mb-4">
+                <div class="card p-4 text-center shadow-lg h-100">
+                    <a href="#" class="text-decoration-none text-dark">
+                        <i class="bi bi-person-plus-fill display-3 text-primary"></i>
+                        <h2 class="card-title mt-3">Registrar Iniciador</h2>
+                        <p class="card-text text-muted">Añadir una nueva persona o entidad al sistema.</p>
+                    </a>
                 </div>
-            </main>
+            </div>
+
+            <!-- Tarjeta 2: Listar Iniciadores -->
+            <div class="col-md-5 col-sm-12 mb-4">
+                <div class="card p-4 text-center shadow-lg h-100">
+                    <a href="#" class="text-decoration-none text-dark">
+                        <i class="bi bi-card-list display-3 text-success"></i>
+                        <h2 class="card-title mt-3">Ver Iniciadores</h2>
+                        <p class="card-text text-muted">Consultar y gestionar el listado completo de iniciadores.</p>
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
-</body>
-
-</html>
-
-
+</div>

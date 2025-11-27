@@ -1,0 +1,80 @@
+/* ----------------------------------------------------------------- */
+/* 1. ESTILOS DEL HEADER (Encabezado Azul) */
+/* ----------------------------------------------------------------- */
+.header-dashboard {
+    /* Fondo Azul Marino/Oscuro */
+    background-color: #3b7bbf; 
+    /* Color general del texto en el header */
+    color: white !important; 
+}
+
+/* Asegura que el logo se vea del tamaño adecuado */
+.logo-header {
+    height: 60px;
+    width: auto;
+}
+
+/* Asegura que el texto del título y el de 'Usuario: nicolas' sean blancos */
+.titulo-header {
+    color: white !important;
+}
+
+/* Fuerza a que cualquier enlace (como el botón Salir) dentro del header sea blanco */
+.header-dashboard a {
+    color: white !important;
+    border-color: white !important; /* Para que el borde del botón también sea blanco */
+}
+
+/* ----------------------------------------------------------------- */
+/* 2. ESTILOS DEL SIDEBAR (Menú Lateral Azul) */
+/* ----------------------------------------------------------------- */
+.sidebar-dashboard {
+    /* Fondo Azul Oscuro del menú lateral */
+    background-color: #003366; 
+    color: white; 
+    /* Mantiene el sidebar fijo y ocupa la altura completa */
+    height: 100vh;
+    position: sticky; 
+    top: 0;
+    z-index: 1000; /* Asegura que esté sobre el contenido principal */
+}
+
+.menu-dashboard .nav-link {
+    /* Estilo base para los enlaces del menú */
+    color: rgba(255, 255, 255, 0.75); /* Texto blanco semi-transparente */
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.menu-dashboard .nav-link:hover {
+    /* Efecto al pasar el ratón */
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-dashboard .nav-link.active {
+    /* Estilo del elemento de menú activo */
+    color: #003366; /* Texto oscuro */
+    background-color: white; /* Fondo blanco */
+    font-weight: bold;
+}
+
+/* ----------------------------------------------------------------- */
+/* 3. ESTILOS DEL CONTENIDO PRINCIPAL Y TARJETAS */
+/* ----------------------------------------------------------------- */
+.main-dashboard {
+    /* Ajuste de padding para el contenido principal */
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.card-dashboard {
+    /* Estilos para las tarjetas de estadísticas */
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.card-dashboard:hover {
+    transform: translateY(-3px);
+}

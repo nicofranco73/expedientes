@@ -1,0 +1,21 @@
+.header-dashboard {
+    background-color: #3b7bbf; /* Azul Marino/Oscuro del original */
+    color: white !important; /* Corregido: añadido !important para asegurar que el texto sea blanco */
+}
+.titulo-header {
+    color: white !important;
+}
+.text-white {
+    color: white !important; 
+}
+/* Estilo del Sidebar (Si el sidebar es azul oscuro) */
+.sidebar-dashboard {
+    background-color: #003366; /* Azul Oscuro de la Captura 4 */
+    color: white; 
+}
+/* Asegúrate de añadir el estilo para el logo y otros elementos que falten */
+.logo-header {
+    /* Estilos de alineación y tamaño del logo */
+    height: 76px;
+    /* ... */
+}
